@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>¡Feliz cumpleaños, Vicky!</title>
+  <style>
+    :root{--bg:#0f172a;--card:#0b1220;--accent:#ff7aa2;--glass: rgba(255,255,255,0.06)}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;background:linear-gradient(180deg,#071032 0%, #0e1b3a 100%);color:#fff}
+    .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px}
+    .card{width:min(900px,95%);background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));border-radius:18px;padding:32px;box-shadow:0 10px 40px rgba(2,6,23,.6);position:relative;overflow:hidden}
+    h1{font-size:48px;margin:0 0 8px;letter-spacing:-1px}
+    p.lead{margin:0 0 18px;font-size:18px;opacity:.9}
+    .message{background:var(--glass);padding:18px;border-radius:12px;margin-bottom:18px}
+    .cta{display:flex;gap:12px;align-items:center}
+    .btn{background:linear-gradient(90deg,var(--accent),#ffd27a);color:#071032;padding:14px 20px;border-radius:12px;font-weight:700;text-decoration:none;border:none;cursor:pointer;font-size:16px}
+    .btn:disabled{opacity:.45;cursor:not-allowed}
+    .small{font-size:13px;opacity:.85}
+    .date{font-weight:700}
+
+    /* confetti */
+    .confetti{pointer-events:none;position:absolute;inset:0;overflow:hidden}
+    .confetti i{position:absolute;top:-10%;font-style:normal;opacity:0;animation:fall linear forwards}
+    @keyframes fall{
+      0%{transform:translateY(-10vh) rotate(0deg);opacity:1}
+      100%{transform:translateY(110vh) rotate(540deg);opacity:1}
+    }
+    /* little sparkle */
+    .sparkles{position:absolute;right:18px;top:18px;font-size:22px;opacity:.9}
+
+    /* responsive */
+    @media (max-width:520px){h1{font-size:34px}.card{padding:20px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" role="main" aria-labelledby="title">
+      <div class="confetti" id="confetti"></div>
+      <div class="sparkles">🎉 ✨</div>
+
+      <header>
+        <h1 id="title">¡Feliz cumpleaños, Vicky! 🥳</h1>
+        <p class="lead">Hoy es un día muuuuuuuy especial y queremos celebrarlo contigo.</p>
+      </header>
+
+      <section class="message">
+        <p class="small">Tienes un regalo esperando por ti. <strong>¡Tienes que canjearlo hoy!.</strong></p>
+        <div style="margin-top:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <button id="redeemBtn" class="btn">Canjear regalo</button>
+          <span class="small">Fecha límite: <span id="limitDate" class="date"></span></span>
+        </div>
+        <p style="margin-top:10px" class="small"></p>
+      </section>
+
+      <footer style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <div class="small">Con cariño, Javi y Noelia.</div>
+        <div class="small">¡Ojalá te guste! 🎂</div>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    const redeemUrl = 'https://dingdang.tabbypro.com/common?code=CV3peWh5LNXIdR8';
+
+    const btn = document.getElementById('redeemBtn');
+    const limitDateEl = document.getElementById('limitDate');
+
+    // Fecha límite: hoy (la propia página fuerza que sea canje el mismo día que se abra)
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth()+1).padStart(2,'0');
+    const dd = String(now.getDate()).padStart(2,'0');
+    const todayISO = `${yyyy}-${mm}-${dd}`;
+    limitDateEl.textContent = `${dd}/${mm}/${yyyy}`;
+
+    function isToday(date){
+      const d = new Date(date);
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+    }
+
+    // Cuando el usuario pulse, solo permitirá abrir el enlace si sigue siendo hoy
+    btn.addEventListener('click', ()=>{
+      // comprobación extra por si el navegador del usuario tiene horario distinto
+      const openNow = new Date();
+      if (!isToday(openNow)){
+        alert('Lo sentimos — el periodo de canje ya ha expirado. El regalo debía canjearse hoy.');
+        btn.disabled = true;
+        return;
+      }
+
+      if (redeemUrl.includes('REEMPLAZA_POR_EL_ENLACE_REAL') || redeemUrl.includes('example.com')){
+        const proceed = confirm('El enlace que hay en esta página parece ser un marcador.\n¿Quieres abrirlo de todas formas para probarlo?\n(Si no, modifica la variable "redeemUrl" en el archivo con el enlace real).');
+        if (!proceed) return;
+      }
+
+      window.open(redeemUrl, '_blank');
+    });
+
+    // Confetti simple: crea muchos elementos con emojis y los deja caer
+    (function makeConfetti(){
+      const container = document.getElementById('confetti');
+      const emojis = ['🎉','🎊','🎈','✨','💖','🌟'];
+      const count = 28;
+      for(let i=0;i<count;i++){
+        const el = document.createElement('i');
+        el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+        // posición y duración
+        const left = Math.random()*100;
+        const delay = Math.random()*0.8;
+        const dur = 3 + Math.random()*3;
+        el.style.left = left + '%';
+        el.style.fontSize = (12 + Math.random()*28) + 'px';
+        el.style.animationDuration = dur + 's';
+        el.style.animationDelay = delay + 's';
+        container.appendChild(el);
+      }
+    })();
+
+    // pequeño enfoque accesible
+    btn.focus();
+  </script>
+</body>
+</html>
